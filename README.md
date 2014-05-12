@@ -39,6 +39,7 @@ In this example, a `GET` request would be issued to `https://ci.example.com?sha=
 #### See also:
 
 For `get`, `head`, and `delete` requests, see: https://github.com/lostisland/faraday/blob/master/lib/faraday/connection.rb#L137
+
 For `post`, `put`, and `patch` requests, see: https://github.com/lostisland/faraday/blob/master/lib/faraday/connection.rb#L174
 
 ## TODO
