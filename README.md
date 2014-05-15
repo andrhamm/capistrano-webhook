@@ -24,7 +24,7 @@ In your `deploy.rb`:
 
 For Cap 2:
 ```
-set :webhooks, do
+set :webhooks do
   {
     after_deploy: [
       [:get, "https://ci.example.com", { sha: fetch(:current_revision), app: fetch(:application), env: fetch(:stage) }]
@@ -32,6 +32,8 @@ set :webhooks, do
   }
 end
 ```
+
+Note: if you don't need to run any dynamic methods like `fetch` to determine your webhook, you can specify a plain old Ruby hash instead of a block.
 
 
 For Cap 3:
