@@ -2,21 +2,29 @@
 
 Simple webhooks for Capistrano deployments.
 
-*Currently only supporting Capistrano 2.*
+Supports both Capistrano 2 and 3!
 
 ## Installation
 
 Add this line to your application's Gemfile under the 'development' group:
 
-    gem 'capistrano-webhook', require: false
+    gem 'capistrano-webhook'
 
 ## Usage
 
 In your application's `deploy.rb` file, set a Capistrano variable called `webhooks` to a hash containing a set of callbacks you wish to run during your deployment. The hash keys should be event names (see supported events below) and they should map to arrays representing webhook arguments to send to Faraday. The first item in each webhook should be a valid Farday HTTP method (`:get`, `:post`, etc will map to `Faraday.get`, and `Faraday.post` respectively). All other arguments will be sent in to the Faraday method as arguments with as a splat.
 
+In your `Capfile`:
+
 ```
 require 'capistrano/webhook'
-set(:webhooks) do
+```
+
+In your `deploy.rb`:
+
+For Cap 2:
+```
+set :webhooks, do
   {
     after_deploy: [
       [:get, "https://ci.example.com", { sha: fetch(:current_revision), app: fetch(:application), env: fetch(:stage) }]
@@ -25,15 +33,25 @@ set(:webhooks) do
 end
 ```
 
+
+For Cap 3:
+```
+set :webhooks, {
+  after_deploy: [
+    [:get, "https://ci.example.com", { sha: fetch(:current_revision), app: fetch(:application), env: fetch(:stage) }]
+  ]
+}
+```
+
 In this example, a `GET` request would be issued to `https://ci.example.com?sha=:current_revision&app=:application&env=:stage`
 
 #### Supported Capistrano Events
 
 ```
-:before_deploy             # runs before 'deploy'
-:before_deploy_migrations  # runs before 'deploy:migrations'
-:after_deploy              # runs after  'deploy'
-:after_deploy_migrations   # runs after  'deploy:migrations'
+:before_deploy             # runs before 'deploy'            (Cap 3: 'deploy:started')
+:before_deploy_migrations  # runs before 'deploy:migrations' (Cap 3: 'deploy:migrate')
+:after_deploy              # runs after  'deploy'            (Cap 3: 'deploy:finished')
+:after_deploy_migrations   # runs after  'deploy:migrations' (Cap 3: 'deploy:migrate')
 ```
 
 #### See also:
@@ -45,9 +63,9 @@ For `post`, `put`, and `patch` requests, see: https://github.com/lostisland/fara
 ## TODO
 
 * Deeper Faraday support (POST body, headers, etc)
-* Support for Cap 3
+* ~~Support for Cap 3~~
 * Logging enhancements
-* Support more events, maybe custom events
+* Support more (all?) events, maybe custom events
 
 ## Contributing
 

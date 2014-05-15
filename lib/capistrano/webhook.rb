@@ -1,38 +1,13 @@
-require "capistrano/webhook/version"
-require 'capistrano'
-require 'json'
+$LOAD_PATH.unshift(File.join(File.dirname(__FILE__)))
+
+require 'capistrano/version'
 require 'faraday'
+require 'json'
 
 module Capistrano
   module Webhook
-    def self.extended(configuration)
-      configuration.load do
-
-        before 'deploy',            'webhook:before_deploy'
-        before 'deploy:migrations', 'webhook:before_deploy_migrations'
-        after  'deploy',            'webhook:after_deploy'
-        after  'deploy:migrations', 'webhook:after_deploy_migrations'
-
-        namespace :webhook do
-          task :before_deploy do
-            do_webhooks_for_event :before_deploy
-          end
-          task :before_deploy_migrations do
-            do_webhooks_for_event :before_deploy_migrations
-          end
-          task :after_deploy do
-            do_webhooks_for_event :after_deploy
-          end
-          task :after_deploy_migrations do
-            do_webhooks_for_event :after_deploy_migrations
-          end
-        end
-
-      end
-    end
-
     def webhooks
-      @webhooks ||= fetch(:webhooks, {})
+      fetch :webhooks, {}
     end
 
     def do_webhooks_for_event(event)
@@ -61,6 +36,8 @@ module Capistrano
   end
 end
 
-if Capistrano::Configuration.instance
-  Capistrano::Configuration.instance.extend(Capistrano::Webhook)
+if defined?(Capistrano::VERSION) && Gem::Version.new(Capistrano::VERSION).release >= Gem::Version.new('3.0.0')
+  load File.expand_path('../webhook/v3/tasks.rake', __FILE__)
+else
+  require 'capistrano/webhook/v2/tasks'
 end
